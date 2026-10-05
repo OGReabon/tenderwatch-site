@@ -53,6 +53,9 @@ assert 'data-goatcounter-click="stripe-starter"' in home and 'data-goatcounter-c
 priv = open("_site/soukromi.html", encoding="utf-8").read()
 assert "GoatCounter" in priv and priv.index("GoatCounter") < priv.index("</main>")
 assert os.path.exists("_site/zakazky/ostraha-nemecko/index.html")
+jeo = open("_site/navody/jak-vyplnit-jeo-espd/index.html", encoding="utf-8").read()
+assert "Část IV" in jeo and 'href="/navody/jak-podat-nabidku-v-polsku/"' in jeo   # general guide + related links
+assert "/navody/elektronicky-podpis-nabidky-v-zahranici/" in sm
 def broken(texts): raise RuntimeError("down")
 os.remove(g.CACHE); g.build(rows, TODAY, translator=broken)  # translation failure never breaks the build
 assert "Digitale Plattform 0</a>" in open("_site/zakazky/it-software-nemecko/index.html", encoding="utf-8").read()

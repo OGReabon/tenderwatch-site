@@ -52,7 +52,7 @@ MAX_LIST = 10    # public teaser per page; the full list is the paid product
 MIN_INDEX = 3   # pages with fewer open tenders get noindex (avoid thin content)
 LANG_PREF = ["ces", "slk", "eng"]
 from guides import GUIDES  # noqa: E402
-GUIDE_FOR.update({g["country"]: slug for slug, g in GUIDES.items()})
+GUIDE_FOR.update({g["country"]: slug for slug, g in GUIDES.items() if g.get("country")})
 
 
 def as_list(v):
@@ -264,17 +264,20 @@ def guide_pages(css, footer, today):
     pages = {}
     for slug, g in GUIDES.items():
         path = f"/navody/{slug}/"
-        cin = next(c[2] for k, c in COUNTRIES.items() if k == g["country"])
-        cname = COUNTRIES[g["country"]][1]
+        c = COUNTRIES.get(g.get("country"))
+        cname, cin = (c[1], c[2]) if c else ("Obecné", "")
+        tenders = (f'<p><a href="/zakazky/{g["country"]}/">Aktuálně otevřené zakázky {html.escape(cin)} podle oboru →</a></p>' if c
+                   else '<p><a href="/zakazky/">Aktuálně otevřené zakázky v Německu, Rakousku a Polsku →</a></p>')
+        related = "".join(f'<li><a href="/navody/{s}/">{html.escape(o["h1"])}</a></li>' for s, o in GUIDES.items() if s != slug)
         body = (f'<p class="crumb"><a href="/navody/">Návody</a> › {html.escape(cname)}</p>'
                 f'<article class="guide"><h1>{html.escape(g["h1"])}</h1>{g["body"]}</article>'
-                f'<p><a href="/zakazky/{g["country"]}/">Aktuálně otevřené zakázky {html.escape(cin)} podle oboru →</a></p>'
-                + cta("váš obor", cname))
+                + tenders + cta("váš obor", cname if c else "celá EU")
+                + f'<h2>Další návody</h2><ul class="chips">{related}</ul>')
         pages[path] = page(g["title"] + " | TenderWatch", g["desc"], path, body, css, footer)
     items = "".join(f'<li><a class="tt" href="/navody/{s}/">{html.escape(g["h1"])}</a>'
                     f'<span class="meta">{html.escape(g["desc"])}</span></li>' for s, g in GUIDES.items())
     pages["/navody/"] = page("Návody: jak se přihlásit do zahraniční veřejné zakázky | TenderWatch",
-                             "Praktické návody pro české firmy: jak podat nabídku do veřejné zakázky v Německu, Rakousku a Polsku.",
+                             "Praktické návody pro české firmy: jak podat nabídku do veřejné zakázky v Německu, Rakousku a Polsku, jak vyplnit JEO, přeložit doklady, složit jistotu a podepsat nabídku elektronicky.",
                              "/navody/", f'<h1>Jak se přihlásit do zahraniční veřejné zakázky</h1>'
                              f'<p class="lede">Do nadlimitních veřejných zakázek v jiných zemích EU se můžete přihlásit za stejných podmínek '
                              f'jako domácí firmy. Tyto návody shrnují, kde zakázky hledat, v jakém jazyce podat nabídku a jaké doklady připravit.</p>'
