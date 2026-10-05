@@ -16,7 +16,7 @@ notices += [n("800-2026", "CZE", "72000000", "Česko – IT služby – Údržba
 
 os.environ.pop("DEEPL_API_KEY", None)
 tmp = tempfile.mkdtemp(); here = os.getcwd()
-for f in ("index.html", "gen_pages.py"): shutil.copy(f, tmp)
+for f in ("index.html", "gen_pages.py", "guides.py", "soukromi.html"): shutil.copy(f, tmp)
 os.chdir(tmp)
 calls = []
 def fake(texts):
@@ -42,6 +42,17 @@ g.build(rows, TODAY, translator=fake)
 assert sum(calls) == before                                  # second build served from cache
 sm = open("_site/sitemap.xml").read()
 assert "/zakazky/it-software-nemecko/" in sm and "/zakazky/it-software-cesko/" not in sm
+assert "/navody/jak-podat-nabidku-v-nemecku/" in sm and "/navody/" in sm
+guide = open("_site/navody/jak-podat-nabidku-v-polsku/index.html", encoding="utf-8").read()
+assert "<h1>Jak se přihlásit do veřejné zakázky v Polsku</h1>" in guide and "JEDZ" in guide
+assert 'href="/navody/jak-podat-nabidku-v-nemecku/"' in page          # sector page links its country guide
+assert "gc.zgo.at/count.js" in page and page.count("gc.zgo.at") == 1  # analytics injected once
+assert 'data-goatcounter-click="cta"' in page
+home = open("_site/index.html", encoding="utf-8").read()
+assert 'data-goatcounter-click="stripe-starter"' in home and 'data-goatcounter-click="stripe-pro"' in home
+priv = open("_site/soukromi.html", encoding="utf-8").read()
+assert "GoatCounter" in priv and priv.index("GoatCounter") < priv.index("</main>")
+assert os.path.exists("_site/zakazky/ostraha-nemecko/index.html")
 def broken(texts): raise RuntimeError("down")
 os.remove(g.CACHE); g.build(rows, TODAY, translator=broken)  # translation failure never breaks the build
 assert "Digitale Plattform 0</a>" in open("_site/zakazky/it-software-nemecko/index.html", encoding="utf-8").read()

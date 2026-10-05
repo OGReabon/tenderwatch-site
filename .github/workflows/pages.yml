@@ -1,7 +1,10 @@
 name: build-and-deploy-site
 on:
   push: {branches: [main]}
-  schedule: [{cron: "30 5 * * 1-5"}]   # 05:30 UTC Mon–Fri, after TED's daily publication
+  # Off-the-hour + backup: GitHub drops scheduled runs at busy times (missed 5 Oct 2026)
+  schedule:
+    - {cron: "23 5 * * 1-5"}   # 07:23 Prague
+    - {cron: "53 9 * * 1-5"}   # 11:53 Prague (backup; also picks up TED's morning publication)
   workflow_dispatch: {}
 permissions: {contents: read, pages: write, id-token: write}
 concurrency: {group: pages, cancel-in-progress: true}

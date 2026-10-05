@@ -1,4 +1,4 @@
-"""Generate public, SEO-friendly pages of currently open public tenders (Czech + Slovak buyers) from TED.
+"""Generate public, SEO-friendly pages of currently open public tenders (DE/AT/PL/SK/CZ buyers) from TED, plus guides.
 
 Runs daily in GitHub Actions (see .github/workflows/pages.yml) and writes the whole site into _site/:
 static landing pages copied as-is + /zakazky/<sector>-<country>/ pages + sitemap.xml + robots.txt.
@@ -6,7 +6,7 @@ static landing pages copied as-is + /zakazky/<sector>-<country>/ pages + sitemap
   python gen_pages.py                      # live: query TED
   python gen_pages.py --fixture f.json     # offline: use saved TED notices
 """
-import argparse, datetime as dt, html, json, os, re, shutil, time
+import argparse, datetime as dt, glob, html, json, os, re, shutil, time
 from urllib.parse import quote
 
 BASE = "https://tenderwatching.com"
@@ -39,10 +39,20 @@ SECTORS = {
     "vzdelavani":       ("Vzdělávání a školení", ["80"], "školení, kurzy a vzdělávací programy"),
     "potraviny":        ("Potraviny a stravování", ["15", "553", "555"], "dodávky potravin, catering a školní stravování"),
     "nabytek-vybaveni": ("Nábytek a vybavení", ["39"], "nábytek, vybavení interiérů a kancelářské potřeby"),
+    "ostraha":          ("Ostraha a bezpečnostní služby", ["7971", "35"], "ostraha objektů, bezpečnostní služby a bezpečnostní vybavení"),
+    "preklady":         ("Překlady a tlumočení", ["7953", "7954"], "překladatelské a tlumočnické služby"),
+    "stroje":           ("Stroje a průmyslová zařízení", ["42", "43"], "průmyslové, stavební a zemědělské stroje a zařízení"),
+    "laboratore":       ("Laboratorní a měřicí přístroje", ["38"], "laboratorní, optické a měřicí přístroje"),
+    "tisk":             ("Tisk a tiskoviny", ["798", "22"], "tiskové služby, tiskoviny a publikace"),
 }
+# Cookieless, GDPR-friendly visitor stats (no consent banner needed). Account: tenderwatching.goatcounter.com
+GOATCOUNTER = "https://tenderwatching.goatcounter.com/count"
+GUIDE_FOR = {}   # country slug -> guide slug, filled from guides.py
 MAX_LIST = 10    # public teaser per page; the full list is the paid product
 MIN_INDEX = 3   # pages with fewer open tenders get noindex (avoid thin content)
 LANG_PREF = ["ces", "slk", "eng"]
+from guides import GUIDES  # noqa: E402
+GUIDE_FOR.update({g["country"]: slug for slug, g in GUIDES.items()})
 
 
 def as_list(v):
@@ -185,6 +195,8 @@ EXTRA_CSS = """
 .crumb{font-size:14px;color:var(--moss);margin:8px 0 0}
 .upd{font-size:14px;color:var(--moss)}
 .orig{font-style:italic}
+.guide{max-width:720px}
+.guide li{margin:6px 0}
 """
 
 
@@ -202,13 +214,14 @@ def page(title, desc, path, body, css, footer, noindex=False):
 <meta property="og:title" content="{html.escape(title)}">
 <meta property="og:description" content="{html.escape(desc)}">
 <meta property="og:url" content="{canon}">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;800&display=swap" rel="stylesheet">
 <style>{css}{EXTRA_CSS}</style>
 </head>
 <body>
 <div class="wrap">
-<header><a class="logo" href="/">TenderWatch</a><nav><a href="/zakazky/">Aktuální zakázky</a><a href="/#pricing">Ceník</a></nav></header>
+<header><a class="logo" href="/">TenderWatch</a><nav><a href="/zakazky/">Aktuální zakázky</a><a href="/navody/">Návody</a><a href="/#pricing">Ceník</a></nav></header>
 <main class="doc" style="max-width:none">
 {body}
 </main>
@@ -238,6 +251,67 @@ def item(r, today):
             f'{html.escape(shown)}</a>{orig}'
             f'<span class="meta">{cat}{html.escape(r["buyer"])}</span>'
             f'<span class="meta"><span class="dl">Lhůta {fmt(r["deadline"])}</span> (zbývá {d} {days_word(d)})</span></li>')
+
+
+def guide_link(cslug):
+    g = GUIDE_FOR.get(cslug)
+    if not g:
+        return ""
+    return f'<p><a href="/navody/{g}/">→ {html.escape(GUIDES[g]["h1"])}: krok za krokem, jazyk, doklady</a></p>'
+
+
+def guide_pages(css, footer, today):
+    pages = {}
+    for slug, g in GUIDES.items():
+        path = f"/navody/{slug}/"
+        cin = next(c[2] for k, c in COUNTRIES.items() if k == g["country"])
+        cname = COUNTRIES[g["country"]][1]
+        body = (f'<p class="crumb"><a href="/navody/">Návody</a> › {html.escape(cname)}</p>'
+                f'<article class="guide"><h1>{html.escape(g["h1"])}</h1>{g["body"]}</article>'
+                f'<p><a href="/zakazky/{g["country"]}/">Aktuálně otevřené zakázky {html.escape(cin)} podle oboru →</a></p>'
+                + cta("váš obor", cname))
+        pages[path] = page(g["title"] + " | TenderWatch", g["desc"], path, body, css, footer)
+    items = "".join(f'<li><a class="tt" href="/navody/{s}/">{html.escape(g["h1"])}</a>'
+                    f'<span class="meta">{html.escape(g["desc"])}</span></li>' for s, g in GUIDES.items())
+    pages["/navody/"] = page("Návody: jak se přihlásit do zahraniční veřejné zakázky | TenderWatch",
+                             "Praktické návody pro české firmy: jak podat nabídku do veřejné zakázky v Německu, Rakousku a Polsku.",
+                             "/navody/", f'<h1>Jak se přihlásit do zahraniční veřejné zakázky</h1>'
+                             f'<p class="lede">Do nadlimitních veřejných zakázek v jiných zemích EU se můžete přihlásit za stejných podmínek '
+                             f'jako domácí firmy. Tyto návody shrnují, kde zakázky hledat, v jakém jazyce podat nabídku a jaké doklady připravit.</p>'
+                             f'<ul class="list">{items}</ul>' + cta("váš obor", "celá EU"), css, footer)
+    return pages
+
+
+def add_analytics(out):
+    """Post-process every HTML file: favicon if missing, GoatCounter script, click events on sign-up links,
+    and a privacy-policy note. Done here so the static pages from build_site.py stay untouched."""
+    script = f'<script data-goatcounter="{GOATCOUNTER}" async src="//gc.zgo.at/count.js"></script>'
+    icon = '<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">'
+    def tag(m):
+        a, href = m.group(0), m.group(1)
+        if "data-goatcounter-click" in a:
+            return a
+        name = ("stripe-pro" if "eVq8wRa2V56e0G56mWd7q01" in href else "stripe-starter" if "buy.stripe.com" in href
+                else "mailto" if href.startswith("mailto:") else "cta" if 'class="cta"' in a else None)
+        return a if not name else a[:-1] + f' data-goatcounter-click="{name}">'
+    note = {"soukromi.html": '<h2>Statistiky návštěvnosti</h2><p>Návštěvnost webu měříme službou GoatCounter. Nepoužívá cookies, '
+                             'neukládá IP adresy ani jiné údaje, podle kterých by šlo návštěvníka identifikovat, a data neslouží k reklamě. '
+                             'Počítáme jen zobrazení stránek a kliknutí na tlačítka pro registraci.</p>',
+            "privacy.html": '<h2>Visitor statistics</h2><p>We measure site traffic with GoatCounter. It uses no cookies, stores no IP addresses '
+                            'or other data that could identify a visitor, and the data is never used for advertising. We only count page '
+                            'views and clicks on the sign-up buttons.</p>'}
+    for f in glob.glob(os.path.join(out, "**", "*.html"), recursive=True):
+        s = open(f, encoding="utf-8").read()
+        if "gc.zgo.at" in s or "</head>" not in s:
+            continue
+        if 'rel="icon"' not in s:
+            s = s.replace("</head>", icon + "\n</head>", 1)
+        s = s.replace("</head>", script + "\n</head>", 1)
+        s = re.sub(r'<a [^>]*href="([^"]*)"[^>]*>', tag, s)
+        rel = os.path.relpath(f, out).replace(os.sep, "/")
+        if rel in note and "GoatCounter" not in s:
+            s = s.replace("</main>", note[rel] + "</main>", 1)
+        open(f, "w", encoding="utf-8").write(s)
 
 
 def matches(r, prefixes, iso):
@@ -280,7 +354,7 @@ def build(rows, today, out="_site", translator=None):
                     f'<h1>Veřejné zakázky {html.escape(cin)}: {html.escape(stitle)}</h1>{stamp}{intro}'
                     + (f'<ul class="list">{"".join(item(r, today) for r in hits[:MAX_LIST])}</ul>' if hits else "")
                     + (more(n - MAX_LIST) if n > MAX_LIST else "")
-                    + cta(stitle, cname)
+                    + cta(stitle, cname) + guide_link(cslug)
                     + f'<p class="upd">Zobrazujeme nadlimitní zakázky zveřejněné v Úředním věstníku EU (TED) za posledních 40 dní. '
                       f'Podlimitní zakázky z národních věstníků zatím nepokrýváme.</p>')
             pages[path] = page(title, desc, path, body, css, footer, noindex=n < MIN_INDEX)
@@ -296,7 +370,7 @@ def build(rows, today, out="_site", translator=None):
                 f'<ul class="chips">{chips}</ul>'
                 f'<h2>Nejbližší lhůty</h2><ul class="list">{"".join(item(r, today) for r in country_rows[:MAX_LIST])}</ul>'
                 + (more(n - MAX_LIST).replace("v tomto oboru", cin) if n > MAX_LIST else "")
-                + cta("všechny obory", cname))
+                + cta("všechny obory", cname) + guide_link(cslug))
         pages[path] = page(f"Veřejné zakázky {cin} – otevřené výzvy podle oboru" + (" (česky)" if iso not in NATIVE else ""),
                            f"{n} otevřených veřejných zakázek {cin} podle oboru, s lhůtami. Aktualizováno každý pracovní den.",
                            path, body, css, footer)
@@ -312,7 +386,11 @@ def build(rows, today, out="_site", translator=None):
                               "/zakazky/", f'<h1>Veřejné zakázky v Evropě – česky</h1>{stamp}'
                               f'<p class="lede">{len(rows)} otevřených nadlimitních veřejných zakázek, do kterých se dá ještě podat nabídka. '
                               f'Zahraniční zakázky mají název přeložený do češtiny. Vyberte zemi a obor.</p>'
-                              + blocks + cta("váš obor", "celá EU"), css, footer)
+                              + blocks + '<h2>Návody</h2><ul class="chips">'
+                              + "".join(f'<li><a href="/navody/{s}/">{html.escape(g["h1"])}</a></li>' for s, g in GUIDES.items())
+                              + '</ul>' + cta("váš obor", "celá EU"), css, footer)
+    gp = guide_pages(css, footer, today)
+    pages.update(gp); urls += list(gp)
 
     for path, content in pages.items():
         full = os.path.join(out, path.strip("/"), "index.html")
@@ -321,6 +399,7 @@ def build(rows, today, out="_site", translator=None):
     sm = "".join(f"<url><loc>{BASE}{u}</loc><lastmod>{today.isoformat()}</lastmod></url>" for u in urls)
     open(os.path.join(out, "sitemap.xml"), "w").write(
         f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{sm}</urlset>\n')
+    add_analytics(out)
     open(os.path.join(out, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n")
     return {"open_tenders": len(rows), "pages": len(pages), "indexed": len(urls)}
 
