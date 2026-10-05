@@ -22,8 +22,10 @@ calls = []
 def fake(texts):
     calls.append(len(texts)); return ["Digitální platforma " + t.rsplit(" ", 1)[1] for t in texts]
 
-rows = g.normalise(notices, TODAY)
-assert len(rows) == 15                                      # expired Austrian one dropped
+dup = dict(notices[0]); dup["publication-number"] = "799-2026"      # same title+buyer, another lot
+dup["buyer-name"] = notices[0]["buyer-name"]
+rows = g.normalise(notices + [dup], TODAY)
+assert len(rows) == 15                                      # expired Austrian one dropped, lot duplicate merged
 stats = g.build(rows, TODAY, translator=fake)
 page = open("_site/zakazky/it-software-nemecko/index.html", encoding="utf-8").read()
 assert "<h1>Veřejné zakázky v Německu: IT a software</h1>" in page

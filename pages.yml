@@ -1,0 +1,35 @@
+name: build-and-deploy-site
+on:
+  push: {branches: [main]}
+  # Off-the-hour + backup: GitHub drops scheduled runs at busy times (missed 5 Oct 2026)
+  schedule:
+    - {cron: "23 5 * * 1-5"}   # 07:23 Prague
+    - {cron: "53 9 * * 1-5"}   # 11:53 Prague (backup; also picks up TED's morning publication)
+  workflow_dispatch: {}
+permissions: {contents: read, pages: write, id-token: write}
+concurrency: {group: pages, cancel-in-progress: true}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install requests
+      - uses: actions/cache@v4          # translated titles persist between runs (stays inside DeepL free tier)
+        with:
+          path: .cache
+          key: translations-${{ github.run_id }}
+          restore-keys: translations-
+      - run: python test_pages.py
+      - run: python gen_pages.py
+        env: {DEEPL_API_KEY: "${{ secrets.DEEPL_API_KEY }}"}
+      - uses: actions/upload-pages-artifact@v3
+        with: {path: _site}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: {name: github-pages, url: "${{ steps.d.outputs.page_url }}"}
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v4

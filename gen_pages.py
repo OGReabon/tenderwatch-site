@@ -136,7 +136,13 @@ def normalise(notices, today):
                          countries=list(dict.fromkeys(as_list(x.get("buyer-country")))),
                          cpvs=list(dict.fromkeys(as_list(x.get("classification-cpv")))),
                          deadline=dl[0], published=str(x.get("publication-date", ""))[:10])
-    return sorted(rows.values(), key=lambda r: (r["deadline"], r["id"]))
+    # TED often publishes one notice per lot with identical title + buyer; show each tender once
+    seen, out = set(), []
+    for r in sorted(rows.values(), key=lambda r: (r["deadline"], r["id"])):
+        key = (r["title"].casefold(), r["buyer"].casefold())
+        if key not in seen:
+            seen.add(key); out.append(r)
+    return out
 
 
 def lc(t):
