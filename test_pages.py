@@ -31,7 +31,7 @@ page = open("_site/zakazky/it-software-nemecko/index.html", encoding="utf-8").re
 assert "<h1>Veřejné zakázky v Německu: IT a software</h1>" in page
 assert page.count('<li><a class="tt"') == 10                # teaser capped at 10
 assert "Digitální platforma 0</a>" in page and "Originál: Digitale Plattform 0" in page
-assert "…a dalších 4 otevřené zakázky v tomto oboru." in page
+assert "…a další 4 otevřené zakázky v tomto oboru." in page and "Aktuálně je 14 otevřených zakázek." in page
 assert "strojově přeložené do češtiny" in page
 cz = open("_site/zakazky/it-software-cesko/index.html", encoding="utf-8").read()
 assert "Údržba systému</a>" in cz and "Originál" not in cz   # no translation for Czech tenders

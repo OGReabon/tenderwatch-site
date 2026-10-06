@@ -172,6 +172,16 @@ def zakazky(n):
     return "zakázka" if n == 1 else "zakázky" if 2 <= n <= 4 else "zakázek"
 
 
+def otevrenych(n):
+    """'1 otevřená zakázka', '3 otevřené zakázky', '12 otevřených zakázek'"""
+    return f"{n} " + ("otevřená zakázka" if n == 1 else "otevřené zakázky" if 2 <= n <= 4 else "otevřených zakázek")
+
+
+def nadlimitnich(n):
+    return f"{n} " + ("otevřená nadlimitní veřejná zakázka" if n == 1 else
+                      "otevřené nadlimitní veřejné zakázky" if 2 <= n <= 4 else "otevřených nadlimitních veřejných zakázek")
+
+
 def chrome():
     """Reuse the landing page's CSS and footer so generated pages stay in sync with the main site."""
     src = open("index.html", encoding="utf-8").read()
@@ -229,16 +239,18 @@ def page(title, desc, path, body, css, footer, noindex=False):
 """
 
 
-def more(k):
-    return (f'<p class="box" style="margin-top:0"><strong>…a dalších {k} {zakazky(k).replace("zakázky","otevřené zakázky").replace("zakázek","otevřených zakázek").replace("zakázka","otevřená zakázka")} v tomto oboru.</strong> '
-            f'Všechny (a každé ráno nové) vám pošleme e-mailem. <a href="/">Vyzkoušet 14 dní zdarma →</a></p>')
+def more(k, where="v tomto oboru"):
+    lead = "…a další" if k <= 4 else "…a dalších"
+    return (f'<p class="box" style="margin-top:0"><strong>{lead} {otevrenych(k)} {where}.</strong> '
+            f'Všechny vám pošleme e-mailem a potom každé ráno nové. <a href="/">Vyzkoušet 14 dní zdarma →</a></p>')
 
 
-def cta(sector_title, country_name):
-    return (f'<div class="box"><p><strong>Nechte si nové zakázky posílat každé ráno.</strong> '
+def cta(what=""):
+    """what: e.g. 'z oboru IT a software v Německu'; empty for a generic box."""
+    head = f"Chcete nové zakázky {html.escape(what)} dostávat každé ráno?" if what else "Nechte si nové zakázky posílat každé ráno."
+    return (f'<div class="box"><p><strong>{head}</strong> '
             f'TenderWatch každý pracovní den projde všechna nová oznámení v celé EU a pošle vám jen ta, '
-            f'která odpovídají vašemu oboru ({html.escape(lc(sector_title))}, {html.escape(country_name)}) '
-            f'— přeložená do češtiny, s lhůtou a odkazem.</p>'
+            f'která odpovídají vašemu oboru. S názvem přeloženým do češtiny, lhůtou a odkazem na celé oznámení.</p>'
             f'<a class="cta" href="/">Vyzkoušet 14 dní zdarma</a></div>')
 
 
@@ -271,7 +283,7 @@ def guide_pages(css, footer, today):
         related = "".join(f'<li><a href="/navody/{s}/">{html.escape(o["h1"])}</a></li>' for s, o in GUIDES.items() if s != slug)
         body = (f'<p class="crumb"><a href="/navody/">Návody</a> › {html.escape(cname)}</p>'
                 f'<article class="guide"><h1>{html.escape(g["h1"])}</h1>{g["body"]}</article>'
-                + tenders + cta("váš obor", cname if c else "celá EU")
+                + tenders + cta(cin if c else "")
                 + f'<h2>Další návody</h2><ul class="chips">{related}</ul>')
         pages[path] = page(g["title"] + " | TenderWatch", g["desc"], path, body, css, footer)
     items = "".join(f'<li><a class="tt" href="/navody/{s}/">{html.escape(g["h1"])}</a>'
@@ -281,7 +293,7 @@ def guide_pages(css, footer, today):
                              "/navody/", f'<h1>Jak se přihlásit do zahraniční veřejné zakázky</h1>'
                              f'<p class="lede">Do nadlimitních veřejných zakázek v jiných zemích EU se můžete přihlásit za stejných podmínek '
                              f'jako domácí firmy. Tyto návody shrnují, kde zakázky hledat, v jakém jazyce podat nabídku a jaké doklady připravit.</p>'
-                             f'<ul class="list">{items}</ul>' + cta("váš obor", "celá EU"), css, footer)
+                             f'<ul class="list">{items}</ul>' + cta(), css, footer)
     return pages
 
 
@@ -349,15 +361,15 @@ def build(rows, today, out="_site", translator=None):
                      else f"Veřejné zakázky {stitle} – {cname} | otevřené výzvy")
             desc = (f"{n} {zakazky(n)} v oboru {lc(stitle)} {cin}, do kterých se dá ještě přihlásit. "
                     f"Seznam s lhůtami pro podání nabídek, aktualizovaný každý pracovní den.")
-            intro = (f'<p class="lede">Aktuálně otevřené veřejné zakázky {cin} v oboru <strong>{html.escape(lc(stitle))}</strong> '
-                     f'({html.escape(sdesc)}). {"Je jich " + str(n) + "." if n else "Momentálně žádná otevřená výzva."} '
-                     + (f'Níže je {MAX_LIST} z nich s nejbližší lhůtou pro podání nabídek.' if n > MAX_LIST else 'Seřazeno podle nejbližší lhůty pro podání nabídek.')
+            intro = (f'<p class="lede">Přehled veřejných zakázek {cin} v oboru <strong>{html.escape(lc(stitle))}</strong>, do kterých se dá ještě podat nabídka '
+                     f'({html.escape(sdesc)}). {("Aktuálně " + ("jsou " if 2 <= n <= 4 else "je ") + otevrenych(n) + ".") if n else "Momentálně tu není žádná otevřená výzva."} '
+                     + (f'Níže uvádíme {MAX_LIST} s nejbližší lhůtou pro podání nabídek.' if n > MAX_LIST else 'Seřazeno podle nejbližší lhůty pro podání nabídek.')
                      + (' Názvy jsou strojově přeložené do češtiny, originál je uveden pod nimi.' if foreign else '') + '</p>')
             body = (f'<p class="crumb"><a href="/zakazky/">Aktuální zakázky</a> › {html.escape(cname)}</p>'
                     f'<h1>Veřejné zakázky {html.escape(cin)}: {html.escape(stitle)}</h1>{stamp}{intro}'
                     + (f'<ul class="list">{"".join(item(r, today) for r in hits[:MAX_LIST])}</ul>' if hits else "")
                     + (more(n - MAX_LIST) if n > MAX_LIST else "")
-                    + cta(stitle, cname) + guide_link(cslug)
+                    + cta(f"z oboru {lc(stitle)} {cin}") + guide_link(cslug)
                     + f'<p class="upd">Zobrazujeme nadlimitní zakázky zveřejněné v Úředním věstníku EU (TED) za posledních 40 dní. '
                       f'Podlimitní zakázky z národních věstníků zatím nepokrýváme.</p>')
             pages[path] = page(title, desc, path, body, css, footer, noindex=n < MIN_INDEX)
@@ -369,11 +381,11 @@ def build(rows, today, out="_site", translator=None):
         n = len(country_rows)
         chips = "".join(f'<li><a href="{p}">{html.escape(t)} ({k})</a></li>' for t, p, k in sector_links)
         body = (f'<h1>Veřejné zakázky {html.escape(cin)}</h1>{stamp}'
-                f'<p class="lede">{n} otevřených nadlimitních veřejných zakázek {cin}, do kterých se dá ještě podat nabídka. Vyberte obor:</p>'
+                f'<p class="lede">{"Aktuálně je " if n == 1 else "Aktuálně jsou " if 2 <= n <= 4 else "Aktuálně je "}{nadlimitnich(n)} {cin}, do kter{"é" if n == 1 else "ých"} se dá ještě podat nabídka. Vyberte obor:</p>'
                 f'<ul class="chips">{chips}</ul>'
                 f'<h2>Nejbližší lhůty</h2><ul class="list">{"".join(item(r, today) for r in country_rows[:MAX_LIST])}</ul>'
-                + (more(n - MAX_LIST).replace("v tomto oboru", cin) if n > MAX_LIST else "")
-                + cta("všechny obory", cname) + guide_link(cslug))
+                + (more(n - MAX_LIST, cin) if n > MAX_LIST else "")
+                + cta(cin) + guide_link(cslug))
         pages[path] = page(f"Veřejné zakázky {cin} – otevřené výzvy podle oboru" + (" (česky)" if iso not in NATIVE else ""),
                            f"{n} otevřených veřejných zakázek {cin} podle oboru, s lhůtami. Aktualizováno každý pracovní den.",
                            path, body, css, footer)
@@ -387,11 +399,11 @@ def build(rows, today, out="_site", translator=None):
     pages["/zakazky/"] = page("Veřejné zakázky v Německu, Rakousku a Polsku česky | TenderWatch",
                               "Otevřené veřejné zakázky z Německa, Rakouska, Polska, Slovenska a Česka podle oboru, s názvy přeloženými do češtiny. Aktualizováno každý pracovní den.",
                               "/zakazky/", f'<h1>Veřejné zakázky v Evropě – česky</h1>{stamp}'
-                              f'<p class="lede">{len(rows)} otevřených nadlimitních veřejných zakázek, do kterých se dá ještě podat nabídka. '
+                              f'<p class="lede">Aktuálně evidujeme {nadlimitnich(len(rows)).replace("otevřená ", "otevřenou ").replace("nadlimitní veřejná zakázka", "nadlimitní veřejnou zakázku")}, do kterých se dá ještě podat nabídka. '
                               f'Zahraniční zakázky mají název přeložený do češtiny. Vyberte zemi a obor.</p>'
                               + blocks + '<h2>Návody</h2><ul class="chips">'
                               + "".join(f'<li><a href="/navody/{s}/">{html.escape(g["h1"])}</a></li>' for s, g in GUIDES.items())
-                              + '</ul>' + cta("váš obor", "celá EU"), css, footer)
+                              + '</ul>' + cta(), css, footer)
     gp = guide_pages(css, footer, today)
     pages.update(gp); urls += list(gp)
 

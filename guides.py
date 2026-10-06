@@ -4,7 +4,7 @@ Facts checked October 2026; thresholds are the EU thresholds valid from 1 Januar
 Keep claims general and link to the official sources — rules differ per contracting authority.
 """
 
-THRESHOLDS = """<h2>Od jaké hodnoty jde zakázka do celé EU</h2>
+THRESHOLDS = """<h2>Kdy je zakázka otevřená firmám z celé EU</h2>
 <p>Zakázky nad tzv. evropskými finančními limity se musí zveřejnit v Úředním věstníku EU (TED) a může se do nich přihlásit
 kterákoli firma z EU za stejných podmínek jako domácí. Od 1.&nbsp;1.&nbsp;2026 platí (bez DPH):</p>
 <ul>
@@ -24,7 +24,7 @@ databáze <a href="https://ec.europa.eu/tools/ecertis/" rel="noopener">eCertis</
 COMMON_TAIL = """<h2>Jak zakázky vůbec najít</h2>
 <p>Všechny nadlimitní zakázky z celé EU jsou na portálu <a href="https://ted.europa.eu/cs/" rel="noopener">TED</a>.
 Každý pracovní den jich přibude přes tisíc, většinou v jazyce zadavatele. TenderWatch je každé ráno projde za vás, vybere ty,
-které odpovídají vašemu oboru a zemím, a pošle vám je e-mailem s názvem přeloženým do češtiny a s lhůtou pro podání nabídky.</p>
+které odpovídají vašemu oboru a zemím, a pošle vám je e-mailem s názvem přeloženým do češtiny a lhůtou pro podání nabídek.</p>
 <p class="upd">Tento návod je obecný přehled, ne právní rada. Rozhodující jsou vždy zadávací podmínky konkrétní zakázky.
 Aktualizováno v říjnu 2026.</p>"""
 
@@ -35,7 +35,7 @@ GUIDES = {
         "h1": "Jak se přihlásit do veřejné zakázky v Německu",
         "desc": "Kde hledat německé veřejné zakázky, jak funguje e-Vergabe, v jakém jazyce podat nabídku a jaké doklady připravit. Praktický návod pro české firmy.",
         "body": """<p class="lede">Německo je největší trh veřejných zakázek v EU a pro české firmy nejbližší.
-Zadavatelé z Bavorska a Saska běžně dostávají nabídky z Česka. Tady je, co potřebujete vědět, než podáte první nabídku.</p>
+Pro firmy ze západních a severních Čech bývají zakázky v Bavorsku a Sasku blíž než ty na druhém konci republiky. Tady je, co potřebujete vědět, než podáte první nabídku.</p>
 """ + THRESHOLDS + """
 <h2>Kde se německé zakázky zveřejňují</h2>
 <p>Německo nemá jeden povinný portál. Každý zadavatel používá některou z platforem pro elektronické zadávání
@@ -51,14 +51,14 @@ protože jen registrovaní dostávají upozornění na vysvětlení a změny zad
 <li><strong>Zkontrolujte podmínky účasti</strong> (<em>Eignungskriterien</em>): obrat, reference, pojištění, certifikace.</li>
 <li><strong>Připravte JEO</strong> (německy <em>EEE – Einheitliche Europäische Eigenerklärung</em>) nebo vlastní čestná prohlášení,
 pokud je zadavatel připustí.</li>
-<li><strong>Podejte nabídku elektronicky</strong> přes platformu uvedenou v oznámení, nejpozději do lhůty (<em>Angebotsfrist</em>).
+<li><strong>Podejte nabídku elektronicky</strong> přes platformu uvedenou v oznámení, nejpozději do konce lhůty (<em>Angebotsfrist</em>).
 Nabídka podaná pozdě nebo e-mailem se nehodnotí.</li>
 </ol>
 
 <h2>V jakém jazyce</h2>
 <p>Zadávací dokumentace i nabídka jsou prakticky vždy <strong>v němčině</strong>. Doklady v jiném jazyce zadavatel obvykle přijme
 jen s německým překladem; úředně ověřený překlad chce jen někdy, záleží na zadávacích podmínkách. Dotazy k zadávací dokumentaci
-(<em>Bieterfragen</em>) pokládejte také německy a přes platformu, ne telefonem.</p>
+(<em>Bieterfragen</em>) kladte také německy, a to přes platformu, ne telefonem.</p>
 
 <h2>Podpis a forma nabídky</h2>
 <p>U většiny nadlimitních zakázek na dodávky a služby stačí nabídka v tzv. <em>Textform</em> — tedy elektronicky bez kvalifikovaného
@@ -75,7 +75,7 @@ jednotlivých dokladů v každé nabídce.</p>
 <h2>Na co si dát pozor</h2>
 <ul>
 <li><strong>Mzdové zákony.</strong> V řadě spolkových zemí platí zákony o dodržování tarifních mezd (<em>Tariftreuegesetze</em>) a
-k nabídce se přikládá prohlášení o jejich dodržení. Pro práci v Německu platí také německá minimální mzda a pravidla vysílání pracovníků.</li>
+k nabídce se přikládá prohlášení o jejich dodržování. Pro práci v Německu platí také německá minimální mzda a pravidla vysílání pracovníků.</li>
 <li><strong>Wettbewerbsregister.</strong> U zakázek od 30&nbsp;000&nbsp;€ si zadavatel ověřuje vybraného dodavatele v rejstříku
 vyloučených firem. U zahraniční firmy to obvykle doplňuje výpisem z rejstříku trestů.</li>
 <li><strong>Zakázky jsou rozdělené na části</strong> (<em>Lose</em>). Často se vyplatí podat nabídku jen na jednu regionální část.</li>
@@ -87,8 +87,8 @@ vyloučených firem. U zahraniční firmy to obvykle doplňuje výpisem z rejst�
         "title": "Jak se přihlásit do veřejné zakázky v Rakousku – návod pro české firmy",
         "h1": "Jak se přihlásit do veřejné zakázky v Rakousku",
         "desc": "Kde hledat rakouské veřejné zakázky, jak funguje USP a ANKÖ, v jakém jazyce podat nabídku a jaké doklady připravit. Praktický návod pro české firmy.",
-        "body": """<p class="lede">Rakousko má relativně malý, ale dobře přehledný trh veřejných zakázek a české firmy z jižních Čech a Moravy
-na něm uspívají hlavně ve stavebnictví, strojírenství a IT. Přehled toho podstatného:</p>
+        "body": """<p class="lede">Rakousko má menší, ale přehledný trh veřejných zakázek a pro firmy z jižních Čech a jižní Moravy je doslova za humny.
+Přehled toho podstatného:</p>
 """ + THRESHOLDS + """
 <h2>Kde se rakouské zakázky zveřejňují</h2>
 <p>Centrálním přehledem je spolková služba <em>Ausschreibungen Austria</em> na portálu <a href="https://www.usp.gv.at/" rel="noopener">USP</a>,
@@ -133,7 +133,7 @@ hlášení vyslaných zaměstnanců (ZKO).</li>
         "h1": "Jak se přihlásit do veřejné zakázky v Polsku",
         "desc": "Jak funguje polská platforma e-Zamówienia, v jakém jazyce podat nabídku, co je JEDZ a wadium a jaké doklady připravit. Praktický návod pro české firmy.",
         "body": """<p class="lede">Polsko patří k největším trhům veřejných zakázek ve střední Evropě a díky evropským fondům vypisuje velké
-zakázky na infrastrukturu, IT i vybavení nemocnic. Pro české firmy je jazykově i geograficky blízko. Co je dobré vědět:</p>
+zakázky na infrastrukturu, IT i vybavení nemocnic. Pro české firmy je blízko jazykově i geograficky. Co je dobré vědět:</p>
 """ + THRESHOLDS + """
 <h2>Kde se polské zakázky zveřejňují</h2>
 <p>Hlavním systémem je státní platforma <a href="https://ezamowienia.gov.pl/" rel="noopener">e-Zamówienia</a>. Je na ní národní věstník
@@ -142,12 +142,12 @@ používá vlastní certifikované platformy (např. platformazakupowa.pl), odka
 
 <h2>Postup krok za krokem</h2>
 <ol>
-<li><strong>Založte si účet na e-Zamówienia</strong> a přidejte k němu svou firmu. Pro zahraniční firmy je postup popsaný
+<li><strong>Založte si účet na platformě e-Zamówienia</strong> a přidejte k němu svou firmu. Pro zahraniční firmy je postup popsaný
 v anglických návodech na portálu; s registrací pomáhá i helpdesk (+48&nbsp;22&nbsp;458&nbsp;77&nbsp;99).</li>
 <li><strong>Stáhněte zadávací dokumentaci</strong> (<em>SWZ – specyfikacja warunków zamówienia</em>) a přečtěte si podmínky účasti
 (<em>warunki udziału</em>) a důvody vyloučení.</li>
 <li><strong>Vyplňte JEO</strong> (polsky <em>JEDZ – Jednolity Europejski Dokument Zamówienia</em>), který je u nadlimitních zakázek povinný.</li>
-<li><strong>Složte jistotu, pokud ji zadavatel chce</strong> (<em>wadium</em>). U nadlimitních zakázek může činit až 3&nbsp;% předpokládané
+<li><strong>Složte jistotu</strong> (<em>wadium</em>), pokud ji zadavatel požaduje. U nadlimitních zakázek může činit až 3&nbsp;% předpokládané
 hodnoty a lze ji poskytnout převodem nebo bankovní či pojišťovací zárukou.</li>
 <li><strong>Podepište a podejte nabídku elektronicky.</strong> U nadlimitních zakázek musí být nabídka podepsaná
 <strong>kvalifikovaným elektronickým podpisem</strong>; český kvalifikovaný podpis Polsko uznává.</li>
@@ -245,7 +245,7 @@ překladu pochybnost. Pokud dokumentace nic neříká, zeptejte se v rámci dota
 <h2>Jak ušetřit</h2>
 <ul>
 <li><strong>Apostila mezi zeměmi EU obvykle není potřeba.</strong> Nařízení (EU) 2016/1191 zrušilo ověřování u řady veřejných listin
-mezi členskými státy. Ke vybraným listinám (mimo jiné k výpisu z rejstříku trestů) lze navíc získat
+mezi členskými státy. K vybraným listinám (mimo jiné k výpisu z rejstříku trestů) lze navíc získat
 <strong>vícejazyčný standardní formulář</strong>, který překlad nahrazuje.</li>
 <li><strong>Využijte veřejné rejstříky.</strong> Do JEO uveďte odkaz na veřejně dostupný rejstřík; zadavatel si údaje ověří sám
 a překlad celého výpisu pak často nevyžaduje.</li>
@@ -266,8 +266,8 @@ Kvalitní překlad do němčiny nebo polštiny se vám vrátí v dalších zaká
         "title": "Jistota (Vadium, wadium, bid bond) v zahraniční veřejné zakázce – návod",
         "h1": "Jistota v zahraniční zakázce: Vadium, wadium, bid bond",
         "desc": "Co je jistota za nabídku (Vadium, wadium, bid bond), kdy ji zahraniční zadavatelé chtějí, v jaké formě ji složit a kdy o ni můžete přijít.",
-        "body": """<p class="lede">Jistota je záruka, kterou zadavatel může požadovat spolu s nabídkou, aby měl jistotu, že vítěz smlouvu opravdu
-podepíše. V Polsku je běžná, v Německu u nabídek spíše výjimečná. Než ji složíte, ověřte si formu a lhůty.</p>
+        "body": """<p class="lede">Jistota je peněžní záruka, kterou zadavatel může požadovat spolu s nabídkou. Chrání ho pro případ, že vybraný
+dodavatel smlouvu nakonec nepodepíše. V Polsku je běžná, v Německu u nabídek spíše výjimečná. Než ji složíte, ověřte si formu a lhůty.</p>
 
 <h2>Jak se jí říká</h2>
 <ul>
@@ -286,7 +286,7 @@ za řádné plnění nebo za vady, kterou skládá až vítěz.</p>
 
 <h2>V jaké formě</h2>
 <ol>
-<li><strong>Převod peněz</strong> na účet zadavatele. Nejjednodušší, ale peníze jsou vázané až do výběru vítěze
+<li><strong>Převod peněz</strong> na účet zadavatele. Nejjednodušší způsob, peníze jsou ale vázané až do výběru vítěze
 (a u odvolání i déle). Počítejte s tím, že platba musí být <em>připsaná</em> před koncem lhůty pro podání nabídek.</li>
 <li><strong>Bankovní záruka.</strong> Vystaví ji vaše banka; stojí poplatek a banka si obvykle hlídá úvěrový rámec.</li>
 <li><strong>Pojišťovací záruka</strong> (v Polsku <em>gwarancja ubezpieczeniowa</em>). Bývá levnější a rychlejší; nabízí ji řada pojišťoven
@@ -319,7 +319,7 @@ v jednom členském státě se uznává ve všech ostatních. Seznam kvalifikova
 <a href="https://eidas.ec.europa.eu/efda/trust-services/browse/eidas/tls" rel="noopener">EU Trust List</a>.
 V Česku kvalifikované certifikáty vydávají například PostSignum (Česká pošta), I.CA nebo eIdentity.</p>
 
-<h2>Prostý, zaručený, nebo kvalifikovaný?</h2>
+<h2>Kvalifikovaný, zaručený, nebo žádný?</h2>
 <ul>
 <li><strong>Kvalifikovaný podpis</strong> — kvalifikovaný certifikát + kvalifikované zařízení (čipová karta, token nebo vzdálené podepisování
 u poskytovatele). Má účinky vlastnoručního podpisu a vyhoví všude.</li>
@@ -348,7 +348,7 @@ nebo uvádějí, které formáty přijímají. Podepisujte finální verzi — k
 <li>Podepište zkušební soubor stejným postupem, jakým budete podepisovat nabídku.</li>
 <li>Nahrajte ho do bezplatného validátoru Evropské komise
 <a href="https://ec.europa.eu/digital-building-blocks/DSS/webapp-demo/validation" rel="noopener">DSS Demonstration WebApp</a>.
-Výsledek by měl být „TOTAL_PASSED“ a podpis označen jako kvalifikovaný (QES).</li>
+Výsledek by měl být „TOTAL_PASSED“ a podpis by měl být označen jako kvalifikovaný (QES).</li>
 <li>Zkontrolujte platnost certifikátu — musí platit v okamžiku podpisu. Obnovu neodkládejte na poslední týden před lhůtou.</li>
 </ol>
 """ + COMMON_TAIL,
