@@ -49,9 +49,10 @@ SECTORS = {
 GOATCOUNTER = "https://tenderwatching.goatcounter.com/count"
 GUIDE_FOR = {}   # country slug -> guide slug, filled from guides.py
 MAX_LIST = 10    # public teaser per page; the full list is the paid product
-MIN_INDEX = 3   # pages with fewer open tenders get noindex (avoid thin content)
+MIN_INDEX = 5   # pages with fewer open tenders get noindex (avoid thin content); hand-written pages: 1
 LANG_PREF = ["ces", "slk", "eng"]
 from guides import GUIDES  # noqa: E402
+from sector_texts import TEXTS  # noqa: E402
 GUIDE_FOR.update({g["country"]: slug for slug, g in GUIDES.items() if g.get("country")})
 
 
@@ -369,11 +370,15 @@ def build(rows, today, out="_site", translator=None):
                     f'<h1>Veřejné zakázky {html.escape(cin)}: {html.escape(stitle)}</h1>{stamp}{intro}'
                     + (f'<ul class="list">{"".join(item(r, today) for r in hits[:MAX_LIST])}</ul>' if hits else "")
                     + (more(n - MAX_LIST) if n > MAX_LIST else "")
-                    + cta(f"z oboru {lc(stitle)} {cin}") + guide_link(cslug)
+                    + (f'<section class="guide"><h2>{html.escape(TEXTS[sslug + "-" + cslug]["h2"])}</h2>{TEXTS[sslug + "-" + cslug]["body"]}</section>'
+                       if sslug + "-" + cslug in TEXTS else "")
+                    + cta(f"z oboru {lc(stitle)} {cin}")
+                    + ("" if sslug + "-" + cslug in TEXTS else guide_link(cslug))
                     + f'<p class="upd">Zobrazujeme nadlimitní zakázky zveřejněné v Úředním věstníku EU (TED) za posledních 40 dní. '
                       f'Podlimitní zakázky z národních věstníků zatím nepokrýváme.</p>')
-            pages[path] = page(title, desc, path, body, css, footer, noindex=n < MIN_INDEX)
-            if n >= MIN_INDEX:
+            enough = n >= (1 if sslug + "-" + cslug in TEXTS else MIN_INDEX)
+            pages[path] = page(title, desc, path, body, css, footer, noindex=not enough)
+            if enough:
                 urls.append(path)
             sector_links.append((stitle, path, n))
         # country overview
