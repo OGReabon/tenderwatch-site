@@ -208,6 +208,10 @@ EXTRA_CSS = """
 .orig{font-style:italic}
 .guide{max-width:720px}
 .guide li{margin:6px 0}
+.chk{display:inline-block;margin:4px 14px 4px 0}
+header nav{flex-wrap:wrap;justify-content:flex-end;row-gap:6px;column-gap:14px}
+select,input[name=k]{font:inherit;padding:8px;border:1px solid var(--line);border-radius:6px;max-width:100%}
+input[name=k]{width:100%}
 """
 
 
@@ -232,7 +236,7 @@ def page(title, desc, path, body, css, footer, noindex=False):
 </head>
 <body>
 <div class="wrap">
-<header><a class="logo" href="/">TenderWatch</a><nav><a href="/zakazky/">Aktuální zakázky</a><a href="/navody/">Návody</a><a href="/#pricing">Ceník</a></nav></header>
+<header><a class="logo" href="/">TenderWatch</a><nav><a href="/zakazky/">Aktuální zakázky</a><a href="/navody/">Návody</a><a href="/ukazka/">Ukázka zdarma</a><a href="/#pricing">Ceník</a></nav></header>
 <main class="doc" style="max-width:none">
 {body}
 </main>
@@ -243,7 +247,8 @@ def page(title, desc, path, body, css, footer, noindex=False):
 def more(k, where="v tomto oboru"):
     lead = "…a další" if k <= 4 else "…a dalších"
     return (f'<p class="box" style="margin-top:0"><strong>{lead} {otevrenych(k)} {where}.</strong> '
-            f'Všechny vám pošleme e-mailem a potom každé ráno nové. <a href="/">Vyzkoušet 14 dní zdarma →</a></p>')
+            f'S předplatným vám pošleme všechny a potom každé ráno nové. <a href="/">Vyzkoušet 14 dní zdarma →</a> '
+            f'nebo si nejdřív <a href="/ukazka/" data-goatcounter-click="sample-more">nechte poslat ukázku zdarma</a>.</p>')
 
 
 def cta(what=""):
@@ -252,7 +257,8 @@ def cta(what=""):
     return (f'<div class="box"><p><strong>{head}</strong> '
             f'TenderWatch každý pracovní den projde všechna nová oznámení v celé EU a pošle vám jen ta, '
             f'která odpovídají vašemu oboru. S názvem přeloženým do češtiny, lhůtou a odkazem na celé oznámení.</p>'
-            f'<a class="cta" href="/">Vyzkoušet 14 dní zdarma</a></div>')
+            f'<a class="cta" href="/">Vyzkoušet 14 dní zdarma</a> '
+            f'<a href="/ukazka/" data-goatcounter-click="sample-box" style="margin-left:12px">Nejdřív ukázku zdarma →</a></div>')
 
 
 def item(r, today):
@@ -296,6 +302,56 @@ def guide_pages(css, footer, today):
                              f'jako domácí firmy. Tyto návody shrnují, kde zakázky hledat, v jakém jazyce podat nabídku a jaké doklady připravit.</p>'
                              f'<ul class="list">{items}</ul>' + cta(), css, footer)
     return pages
+
+
+OTHER_EU = {"BEL": "Belgie", "BGR": "Bulharsko", "HRV": "Chorvatsko", "DNK": "Dánsko", "EST": "Estonsko", "FIN": "Finsko",
+            "FRA": "Francie", "IRL": "Irsko", "ITA": "Itálie", "CYP": "Kypr", "LTU": "Litva", "LVA": "Lotyšsko",
+            "LUX": "Lucembursko", "HUN": "Maďarsko", "MLT": "Malta", "NLD": "Nizozemsko", "NOR": "Norsko",
+            "PRT": "Portugalsko", "ROU": "Rumunsko", "GRC": "Řecko", "SVN": "Slovinsko", "ESP": "Španělsko",
+            "SWE": "Švédsko", "CHE": "Švýcarsko"}
+SAMPLE_TO = "info@tenderwatching.com"
+
+
+def sample_page(css, footer):
+    """/ukazka/: free-sample request. The form composes an e-mail (mailto) in a fixed format that the
+    daily job reads from the inbox; no backend, and the request is opt-in by construction."""
+    sectors = "".join(f'<option value="{s}">{html.escape(t)}</option>' for s, (t, _, _) in SECTORS.items())
+    main = "".join(f'<label class="chk"><input type="checkbox" name="c" value="{iso}"> {html.escape(name)}</label>'
+                   for _, (iso, name, _) in COUNTRIES.items())
+    other = "".join(f'<option value="{iso}">{html.escape(n)}</option>' for iso, n in OTHER_EU.items())
+    body = rf"""<h1>Ukázka zdarma: otevřené zakázky z vašeho oboru</h1>
+<p class="lede">Vyberte obor a jednu nebo dvě země. Pošleme vám e-mailem <strong>10 otevřených veřejných zakázek s nejbližší lhůtou</strong>
+– s názvem přeloženým do češtiny, zadavatelem, lhůtou a odkazem – a řekneme vám, kolik jich je celkem.</p>
+<form id="sf" class="box" onsubmit="return tw(event)">
+<p><label><strong>Obor</strong><br><select name="o" required>{sectors}</select></label></p>
+<p><strong>Země</strong> (nejvýš dvě)<br>{main}<br>
+<label>nebo jiná země EU: <select name="c2"><option value="">—</option>{other}</select></label></p>
+<p><label><strong>Klíčová slova</strong> (nepovinné, oddělte čárkou)<br><input name="k" maxlength="120" placeholder="např. fotovoltaika, střecha"></label></p>
+<p id="err" style="color:#9B2C2C"></p>
+<button class="cta" type="submit" data-goatcounter-click="sample-request">Poslat žádost o ukázku</button>
+</form>
+<div id="done" class="box" hidden><p><strong>Otevřel se vám e-mail se žádostí – stačí ho odeslat.</strong>
+Ukázka dorazí do hodiny (v pracovní dny 8–19 h), jinak další ráno. Pošleme ji na adresu, ze které žádost odešlete.</p>
+<p>Neotevřel se e-mail? Pošlete na <a href="mailto:{SAMPLE_TO}">{SAMPLE_TO}</a> s předmětem „Ukázka TenderWatch“ tento text:</p>
+<textarea id="txt" rows="5" style="width:100%" readonly></textarea></div>
+<p class="upd">Ukázka je jednorázová a zdarma, jedna na e-mailovou adresu. Bez předplatného vám další e-maily posílat nebudeme.
+Vaši adresu použijeme jen k odeslání ukázky (<a href="/soukromi.html">ochrana osobních údajů</a>).</p>
+<script>
+function tw(e){{e.preventDefault();var f=document.getElementById('sf'),c=[];
+f.querySelectorAll('input[name=c]:checked').forEach(function(x){{c.push(x.value)}});
+if(f.c2.value&&c.indexOf(f.c2.value)<0)c.push(f.c2.value);
+var err=document.getElementById('err');
+if(!c.length){{err.textContent='Vyberte aspoň jednu zemi.';return false}}
+if(c.length>2){{err.textContent='Vyberte nejvýš dvě země.';return false}}
+err.textContent='';
+var t='Obor: '+f.o.value+'\nZemě: '+c.join(', ')+'\nKlíčová slova: '+f.k.value.replace(/[\r\n]+/g,' ')+'\nJazyk: cs\n';
+document.getElementById('txt').value=t;document.getElementById('done').hidden=false;
+location.href='mailto:{SAMPLE_TO}?subject='+encodeURIComponent('Ukázka TenderWatch')+'&body='+encodeURIComponent(t+'\n(Žádost z formuláře na tenderwatching.com. Ukázku pošleme na adresu odesílatele.)');
+return false}}
+</script>"""
+    return page("Ukázka zdarma: veřejné zakázky z vašeho oboru | TenderWatch",
+                "Vyberte obor a zemi a pošleme vám zdarma 10 otevřených veřejných zakázek s nejbližší lhůtou, s názvy přeloženými do češtiny.",
+                "/ukazka/", body, css, footer)
 
 
 def add_analytics(out):
@@ -411,6 +467,7 @@ def build(rows, today, out="_site", translator=None):
                               + '</ul>' + cta(), css, footer)
     gp = guide_pages(css, footer, today)
     pages.update(gp); urls += list(gp)
+    pages["/ukazka/"] = sample_page(css, footer); urls.append("/ukazka/")
 
     for path, content in pages.items():
         full = os.path.join(out, path.strip("/"), "index.html")

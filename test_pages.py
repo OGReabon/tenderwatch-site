@@ -53,6 +53,9 @@ assert 'data-goatcounter-click="stripe-starter"' in home and 'data-goatcounter-c
 priv = open("_site/soukromi.html", encoding="utf-8").read()
 assert "GoatCounter" in priv and priv.index("GoatCounter") < priv.index("</main>")
 assert os.path.exists("_site/zakazky/ostraha-nemecko/index.html")
+uk = open("_site/ukazka/index.html", encoding="utf-8").read()
+assert 'value="stavby"' in uk and 'value="DEU"' in uk and "Ukázka TenderWatch" in uk and "/ukazka/" in sm
+assert 'href="/ukazka/"' in page                                         # every tender page offers the sample
 assert "Bauabzugsteuer" not in page and "EVB-IT" in page             # hand-written context on it-software-nemecko
 assert page.count("/navody/jak-podat-nabidku-v-nemecku/") >= 1
 jeo = open("_site/navody/jak-vyplnit-jeo-espd/index.html", encoding="utf-8").read()
